@@ -3,6 +3,7 @@ import Sidebar from "./components/layout/Sidebar";
 import DashboardPage from "./pages/DashboardPage";
 import ProjectsPage from "./pages/ProjectsPage";
 import ProjectDetailPage from "./pages/ProjectDetailPage";
+import GeoSalesAutomationMVP from "./GeoSalesAutomationMVP";
 
 export default function App() {
   const [currentPage, setCurrentPage] = useState("dashboard");
@@ -26,6 +27,8 @@ export default function App() {
     content = <ProjectsPage onOpenProject={openProject} />;
   } else if (currentPage === "project-detail") {
     content = <ProjectDetailPage projectId={selectedProjectId} onBack={goBackToProjects} />;
+  } else if (currentPage === "automation") {
+    content = <GeoSalesAutomationMVP />;
   }
 
   return (

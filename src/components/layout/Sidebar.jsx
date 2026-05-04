@@ -2,6 +2,7 @@ export default function Sidebar({ currentPage, onNavigate }) {
   const items = [
     { key: "dashboard", label: "Dashboard" },
     { key: "projects", label: "Projects" },
+    { key: "automation", label: "Automation MVP" },
   ];
 
   return (
