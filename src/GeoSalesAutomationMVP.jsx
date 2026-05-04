@@ -9,7 +9,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Send, Workflow, Target, MessageSquare, Globe, Search, BarChart3, Download, ListChecks } from 'lucide-react';
+import {
+  BarChart3,
+  CheckCircle2,
+  Download,
+  FileText,
+  Globe,
+  Layers3,
+  ListChecks,
+  MessageSquare,
+  RefreshCw,
+  Send,
+  Sparkles,
+  Target,
+  Workflow,
+} from 'lucide-react';
 import { loadState, saveState } from '@/services/storageService';
 import { downloadCsv } from '@/services/csvExportService';
 import { createOperationLog } from '@/services/operationLogService';
@@ -33,6 +47,15 @@ const initialLeads = [
 
 const statusCols = ['New Lead', 'Contacted', 'Following Up', 'Converted'];
 
+const capabilityItems = [
+  'GEO Content Adaptation',
+  'Multi-source Distribution',
+  'Channel Fit Metadata',
+  'CSV Export',
+  'Local Persistence',
+  'Operation Logs',
+];
+
 function makePosts({ productName, audience, keywords, tone, description }) {
   const kw = keywords
     .split(',')
@@ -44,12 +67,12 @@ function makePosts({ productName, audience, keywords, tone, description }) {
 
   return [
     {
-      title: `${productName || 'your product'}  cold-start growth playbook`,
+      title: `${productName || 'your product'} cold-start growth playbook`,
       channel: 'Zhihu',
       body: `I have been studying the growth strategy of ${productName || 'a new product'} and found that many teams do not struggle with building the product itself, but with distributing content consistently. We are building an automated workflow that connects post creation, distribution, lead collection, and sales follow-up for ${audience || 'early-stage teams'}, ${angle}.\n\nIf you are also building ${productName || 'a new project'}, what would you want to solve first: post creation, distribution, or lead conversion?`,
     },
     {
-      title: `${productName || 'Product'}  cold start does not have to rely on paid traffic`,
+      title: `${productName || 'Product'} cold start does not have to rely on paid traffic`,
       channel: 'Xiaohongshu',
       body: `When teams start the cold-start growth process for ${productName || 'a project'}, the first instinct is often to spend on paid traffic. A more practical approach is to build a repeatable content distribution system first.\n\nOur workflow is simple:\n1. Automatically generate platform-specific posts\n2. Distribute content across multiple channels\n3. Collect leads automatically\n4. Move qualified prospects into the sales pipeline\n\nDesigned for ${audience || 'new project teams'} with a ${tone || 'Professional'} tone.`,
     },
@@ -61,17 +84,31 @@ function makePosts({ productName, audience, keywords, tone, description }) {
   ];
 }
 
-function FeatureBubble({ children }) {
+function MetricCard({ label, value, icon: Icon }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 20 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ duration: 0.35 }}
-      className="relative w-full rounded-2xl bg-lime-400 px-5 py-4 text-xl font-semibold tracking-tight text-black shadow-sm"
-    >
-      <div className="pr-6">{children}</div>
-      <div className="absolute right-[-16px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[14px] border-l-[18px] border-y-transparent border-l-lime-400" />
-    </motion.div>
+    <Card className="rounded-[1.35rem] border border-neutral-200 bg-white shadow-sm">
+      <CardContent className="flex items-center justify-between p-5">
+        <div>
+          <div className="text-sm text-neutral-500">{label}</div>
+          <div className="mt-2 text-2xl font-semibold text-neutral-950">{value}</div>
+        </div>
+        <div className="grid h-10 w-10 place-items-center rounded-2xl bg-neutral-100">
+          <Icon className="h-5 w-5 text-neutral-700" />
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function SectionHeader({ title, description, action }) {
+  return (
+    <div className="mb-5 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+      <div>
+        <h2 className="text-xl font-semibold text-neutral-950">{title}</h2>
+        {description && <p className="mt-1 text-sm leading-6 text-neutral-500">{description}</p>}
+      </div>
+      {action}
+    </div>
   );
 }
 
@@ -187,47 +224,107 @@ export default function GeoSalesAutomationMVP() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-200 text-neutral-900">
-      <div className="mx-auto max-w-7xl p-6 md:p-10">
-        <div className="grid gap-6 xl:grid-cols-[340px_1fr]">
-          <div className="space-y-5">
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="rounded-[2rem] bg-white p-6 shadow-sm"
-            >
-              <div className="mb-6 flex items-center gap-3">
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-blue-500 text-3xl font-bold text-white shadow-sm">sy</div>
-                <div>
-                  <div className="text-xl font-semibold">Automated Acquisition & Sales Workflow</div>
-                  <div className="text-sm text-neutral-500">Content Generation · Distribution · Lead Progression</div>
+    <div className="min-h-screen bg-neutral-100 text-neutral-900">
+      <div className="mx-auto max-w-7xl px-6 py-8">
+        <div className="mb-6 rounded-[1.75rem] border border-neutral-200 bg-white p-6 shadow-sm">
+          <div className="flex flex-col gap-5 xl:flex-row xl:items-center xl:justify-between">
+            <div className="flex items-start gap-4">
+              <div className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-blue-500 text-2xl font-bold text-white shadow-sm">
+                sy
+              </div>
+              <div>
+                <div className="flex flex-wrap items-center gap-2">
+                  <h1 className="text-2xl font-semibold tracking-tight text-neutral-950">GEO Distribution Automation MVP</h1>
+                  <Badge variant="secondary" className="rounded-full">v0.2</Badge>
                 </div>
+                <p className="mt-2 max-w-3xl text-sm leading-6 text-neutral-500">
+                  Generate GEO-friendly content assets, adapt them for source platforms, simulate multi-channel distribution,
+                  and export structured workflow data.
+                </p>
               </div>
+            </div>
 
-              <div className="space-y-4">
-                <FeatureBubble>One-click Source Distribution</FeatureBubble>
-                <FeatureBubble>GEO Automated Posting</FeatureBubble>
-                <FeatureBubble>Post Writing & Distribution</FeatureBubble>
-                <FeatureBubble>Sales Workflow Automation</FeatureBubble>
-                <FeatureBubble>Cold-start Sales Workflow</FeatureBubble>
-              </div>
-            </motion.div>
+            <div className="flex flex-wrap gap-2">
+              <Button variant="outline" className="rounded-2xl" onClick={exportPosts}>
+                <Download className="mr-2 h-4 w-4" /> Export Posts
+              </Button>
+              <Button variant="outline" className="rounded-2xl" onClick={resetLocalWorkflow}>
+                <RefreshCw className="mr-2 h-4 w-4" /> Reset
+              </Button>
+            </div>
           </div>
+        </div>
 
-          <div>
+        <div className="grid gap-6 xl:grid-cols-[300px_1fr]">
+          <aside className="space-y-5">
+            <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <Layers3 className="h-4 w-4" /> Workflow Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4 text-sm">
+                {[
+                  ['Input', 'Product, audience, keywords'],
+                  ['Adapt', 'Platform-specific GEO metadata'],
+                  ['Distribute', 'Selected source channels'],
+                  ['Track', 'Logs, leads, and CSV exports'],
+                ].map(([title, body]) => (
+                  <div key={title} className="rounded-2xl bg-neutral-50 p-4">
+                    <div className="font-medium text-neutral-950">{title}</div>
+                    <div className="mt-1 text-neutral-500">{body}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
+              <CardHeader>
+                <CardTitle className="text-base">Capabilities</CardTitle>
+              </CardHeader>
+              <CardContent className="flex flex-wrap gap-2">
+                {capabilityItems.map((item) => (
+                  <Badge key={item} variant="outline" className="rounded-full px-3 py-1">
+                    {item}
+                  </Badge>
+                ))}
+              </CardContent>
+            </Card>
+
+            <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-base">
+                  <ListChecks className="h-4 w-4" /> Recent Operations
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-3">
+                {operationLogs.slice(0, 4).map((log) => (
+                  <div key={log.id} className="rounded-2xl bg-neutral-50 p-3 text-xs">
+                    <div className="font-medium text-neutral-950">{log.action}</div>
+                    <div className="mt-1 leading-5 text-neutral-500">{log.detail}</div>
+                    <div className="mt-2 text-neutral-400">{log.time}</div>
+                  </div>
+                ))}
+              </CardContent>
+            </Card>
+          </aside>
+
+          <main>
             <Tabs defaultValue="builder" className="w-full">
-              <TabsList className="grid w-full grid-cols-4 rounded-2xl bg-white p-1 shadow-sm">
-                <TabsTrigger value="builder">Content Builder</TabsTrigger>
-                <TabsTrigger value="distribution">Distribution Center</TabsTrigger>
-                <TabsTrigger value="crm">Sales Pipeline</TabsTrigger>
-                <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+              <TabsList className="grid w-full grid-cols-4 rounded-2xl border border-neutral-200 bg-white p-1 shadow-sm">
+                <TabsTrigger value="builder" className="rounded-xl">Builder</TabsTrigger>
+                <TabsTrigger value="distribution" className="rounded-xl">Distribution</TabsTrigger>
+                <TabsTrigger value="crm" className="rounded-xl">Leads</TabsTrigger>
+                <TabsTrigger value="dashboard" className="rounded-xl">Analytics</TabsTrigger>
               </TabsList>
 
               <TabsContent value="builder" className="mt-6">
-                <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                <div className="grid gap-6 2xl:grid-cols-[380px_1fr]">
+                  <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg"><Sparkles className="h-5 w-5" /> Project Input</CardTitle>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Sparkles className="h-5 w-5" /> Project Input
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       <div>
@@ -258,53 +355,60 @@ export default function GeoSalesAutomationMVP() {
                       </div>
                       <div>
                         <div className="mb-2 text-sm text-neutral-600">Product Description</div>
-                        <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="min-h-[140px]" />
+                        <Textarea value={description} onChange={(e) => setDescription(e.target.value)} className="min-h-[150px]" />
                       </div>
                     </CardContent>
                   </Card>
 
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                  <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                     <CardHeader>
-                      <div className="flex items-center justify-between gap-3">
-                      <CardTitle className="flex items-center gap-2 text-lg"><MessageSquare className="h-5 w-5" /> Auto-generated Posts</CardTitle>
-                      <Button variant="outline" size="sm" className="rounded-xl" onClick={exportPosts}>
-                        <Download className="mr-2 h-4 w-4" /> Export CSV
-                      </Button>
-                    </div>
+                      <SectionHeader
+                        title="Generated GEO Content"
+                        description="Each asset is enriched with channel fit, platform format, distribution intent, and GEO keywords."
+                        action={
+                          <Button variant="outline" size="sm" className="rounded-xl" onClick={exportPosts}>
+                            <Download className="mr-2 h-4 w-4" /> Export CSV
+                          </Button>
+                        }
+                      />
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {posts.map((post, idx) => (
                         <motion.div
-                          key={idx}
-                          initial={{ opacity: 0, y: 10 }}
+                          key={`${post.channel}-${post.title}`}
+                          initial={{ opacity: 0, y: 8 }}
                           animate={{ opacity: 1, y: 0 }}
-                          transition={{ delay: idx * 0.06 }}
-                          className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4"
+                          transition={{ delay: idx * 0.04 }}
+                          className="rounded-[1.25rem] border border-neutral-200 bg-neutral-50 p-5"
                         >
-                          <div className="mb-2 flex items-center justify-between gap-3">
-                            <div className="font-semibold">{post.title}</div>
-                            <Badge variant="secondary">{post.channel}</Badge>
+                          <div className="mb-4 flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
+                            <div>
+                              <div className="font-semibold text-neutral-950">{post.title}</div>
+                              <div className="mt-1 text-sm text-neutral-500">{post.channel}</div>
+                            </div>
+                            <Badge className="w-fit rounded-full">{post.channelFitScore} Fit</Badge>
                           </div>
-                          <div className="mb-3 grid gap-2 md:grid-cols-3">
-                            <div className="rounded-xl bg-white p-3 text-xs">
-                              <div className="text-neutral-400">Channel Fit</div>
-                              <div className="mt-1 text-lg font-semibold">{post.channelFitScore}</div>
+
+                          <div className="mb-4 grid gap-3 md:grid-cols-3">
+                            <div className="rounded-2xl bg-white p-4 text-sm">
+                              <div className="text-xs text-neutral-400">Format</div>
+                              <div className="mt-1 font-medium text-neutral-800">{post.format}</div>
                             </div>
-                            <div className="rounded-xl bg-white p-3 text-xs">
-                              <div className="text-neutral-400">Format</div>
-                              <div className="mt-1 font-medium text-neutral-700">{post.format}</div>
-                            </div>
-                            <div className="rounded-xl bg-white p-3 text-xs">
-                              <div className="text-neutral-400">Distribution Intent</div>
-                              <div className="mt-1 font-medium text-neutral-700">{post.distributionIntent}</div>
+                            <div className="rounded-2xl bg-white p-4 text-sm md:col-span-2">
+                              <div className="text-xs text-neutral-400">Distribution Intent</div>
+                              <div className="mt-1 font-medium text-neutral-800">{post.distributionIntent}</div>
                             </div>
                           </div>
-                          <div className="mb-3 flex flex-wrap gap-2">
+
+                          <div className="mb-4 flex flex-wrap gap-2">
                             {post.geoKeywords.map((keyword) => (
-                              <Badge key={keyword} variant="outline">{keyword}</Badge>
+                              <Badge key={keyword} variant="outline" className="rounded-full">
+                                {keyword}
+                              </Badge>
                             ))}
                           </div>
-                          <p className="whitespace-pre-line text-sm leading-6 text-neutral-700">{post.body}</p>
+
+                          <p className="whitespace-pre-line text-sm leading-7 text-neutral-700">{post.body}</p>
                         </motion.div>
                       ))}
                     </CardContent>
@@ -314,50 +418,59 @@ export default function GeoSalesAutomationMVP() {
 
               <TabsContent value="distribution" className="mt-6">
                 <div className="grid gap-6 xl:grid-cols-[360px_1fr]">
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                  <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg"><Send className="h-5 w-5" /> Distribution Settings</CardTitle>
+                      <CardTitle className="flex items-center gap-2 text-lg">
+                        <Send className="h-5 w-5" /> Distribution Settings
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-4">
-                      <div className="text-sm text-neutral-600">Select platforms to distribute to</div>
+                      <p className="text-sm leading-6 text-neutral-500">
+                        Select source platforms and simulate a distribution run.
+                      </p>
                       <div className="space-y-3">
                         {CHANNELS.map((channel) => {
                           const checked = selected.includes(channel.id);
                           return (
-                            <label key={channel.id} className="flex items-center gap-3 rounded-xl border border-neutral-200 bg-neutral-50 px-3 py-3 cursor-pointer">
+                            <label key={channel.id} className="flex cursor-pointer items-center gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 px-4 py-3">
                               <Checkbox checked={checked} onCheckedChange={() => toggleChannel(channel.id)} />
-                              <span>{channel.name}</span>
+                              <span className="text-sm font-medium">{channel.name}</span>
                             </label>
                           );
                         })}
                       </div>
-                      <Button className="w-full rounded-2xl" onClick={publishAll}>Start Distribution</Button>
+                      <Button className="w-full rounded-2xl" onClick={publishAll}>
+                        Start Distribution
+                      </Button>
                     </CardContent>
                   </Card>
 
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                  <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                     <CardHeader>
-                      <div className="flex items-center justify-between gap-3">
-                      <CardTitle className="flex items-center gap-2 text-lg"><Globe className="h-5 w-5" /> Distribution Results</CardTitle>
-                      <Button variant="outline" size="sm" className="rounded-xl" onClick={exportDistributionLogs} disabled={published.length === 0}>
-                        <Download className="mr-2 h-4 w-4" /> Export CSV
-                      </Button>
-                    </div>
+                      <SectionHeader
+                        title="Distribution Records"
+                        description="Structured records are generated for each selected source channel."
+                        action={
+                          <Button variant="outline" size="sm" className="rounded-xl" onClick={exportDistributionLogs} disabled={published.length === 0}>
+                            <Download className="mr-2 h-4 w-4" /> Export CSV
+                          </Button>
+                        }
+                      />
                     </CardHeader>
                     <CardContent>
                       {published.length === 0 ? (
-                        <div className="grid min-h-[320px] place-items-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 text-neutral-500">
-                          No distribution records yet. Select channels on the left, then click “Start Distribution.”
+                        <div className="grid min-h-[320px] place-items-center rounded-2xl border border-dashed border-neutral-300 bg-neutral-50 text-sm text-neutral-500">
+                          No distribution records yet. Select channels, then start distribution.
                         </div>
                       ) : (
                         <div className="space-y-3">
                           {published.map((item) => (
-                            <div key={item.id} className="flex flex-col gap-2 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 md:flex-row md:items-center md:justify-between">
+                            <div key={item.id} className="flex flex-col gap-3 rounded-2xl border border-neutral-200 bg-neutral-50 p-4 md:flex-row md:items-center md:justify-between">
                               <div>
-                                <div className="font-medium">{item.title}</div>
-                                <div className="text-sm text-neutral-500">{item.channel} · {item.time}</div>
+                                <div className="font-medium text-neutral-950">{item.title}</div>
+                                <div className="mt-1 text-sm text-neutral-500">{item.channel} · {item.time}</div>
                               </div>
-                              <Badge>{item.status}</Badge>
+                              <Badge className="w-fit rounded-full">{item.status}</Badge>
                             </div>
                           ))}
                         </div>
@@ -368,27 +481,36 @@ export default function GeoSalesAutomationMVP() {
               </TabsContent>
 
               <TabsContent value="crm" className="mt-6">
-                <div className="grid gap-6">
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                <div className="space-y-6">
+                  <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2 text-lg"><Workflow className="h-5 w-5" /> Pipeline Overview</CardTitle>
+                      <SectionHeader
+                        title="Downstream Lead Signals"
+                        description="Lead tracking is included as a downstream signal from content distribution performance."
+                        action={
+                          <Button variant="outline" size="sm" className="rounded-xl" onClick={exportLeads}>
+                            <Download className="mr-2 h-4 w-4" /> Export Leads
+                          </Button>
+                        }
+                      />
                     </CardHeader>
-                    <CardContent className="space-y-5">
-                      <Button variant="outline" className="w-full rounded-2xl" onClick={exportLeads}>
-                        <Download className="mr-2 h-4 w-4" /> Export Leads CSV
-                      </Button>
-                      <div className="rounded-2xl bg-neutral-50 p-4">
-                        <div className="mb-2 text-sm text-neutral-500">Conversion Progress</div>
-                        <Progress value={pipelineProgress} className="mb-2" />
-                        <div className="text-sm text-neutral-600">{pipelineProgress}% of leads have been converted</div>
-                      </div>
-                      <div className="space-y-3">
+                    <CardContent>
+                      <div className="grid gap-4 md:grid-cols-3">
                         <div className="rounded-2xl bg-neutral-50 p-4">
-                          <div className="mb-1 flex items-center gap-2 text-sm text-neutral-500"><Target className="h-4 w-4" /> New Lead</div>
+                          <div className="mb-2 text-sm text-neutral-500">Conversion Progress</div>
+                          <Progress value={pipelineProgress} className="mb-2" />
+                          <div className="text-sm text-neutral-600">{pipelineProgress}% converted</div>
+                        </div>
+                        <div className="rounded-2xl bg-neutral-50 p-4">
+                          <div className="mb-1 flex items-center gap-2 text-sm text-neutral-500">
+                            <Target className="h-4 w-4" /> New Leads
+                          </div>
                           <div className="text-2xl font-semibold">{leads.filter((l) => l.status === 'New Lead').length}</div>
                         </div>
                         <div className="rounded-2xl bg-neutral-50 p-4">
-                          <div className="mb-1 flex items-center gap-2 text-sm text-neutral-500"><MessageSquare className="h-4 w-4" /> Following Up</div>
+                          <div className="mb-1 flex items-center gap-2 text-sm text-neutral-500">
+                            <MessageSquare className="h-4 w-4" /> Following Up
+                          </div>
                           <div className="text-2xl font-semibold">{leads.filter((l) => l.status === 'Following Up').length}</div>
                         </div>
                       </div>
@@ -397,17 +519,17 @@ export default function GeoSalesAutomationMVP() {
 
                   <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
                     {statusCols.map((status) => (
-                      <Card key={status} className="rounded-[1.5rem] border-0 shadow-sm">
+                      <Card key={status} className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                         <CardHeader>
                           <CardTitle className="text-base">{status}</CardTitle>
                         </CardHeader>
                         <CardContent className="space-y-3">
                           {leads.filter((lead) => lead.status === status).map((lead) => (
-                            <div key={lead.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-3">
-                              <div className="font-medium">{lead.name}</div>
+                            <div key={lead.id} className="rounded-2xl border border-neutral-200 bg-neutral-50 p-4">
+                              <div className="font-medium text-neutral-950">{lead.name}</div>
                               <div className="mt-1 text-xs text-neutral-500">Source: {lead.source}</div>
-                              <div className="mt-2 text-sm text-neutral-700">{lead.note}</div>
-                              <div className="mt-3 flex flex-wrap gap-2">
+                              <div className="mt-3 text-sm leading-6 text-neutral-700">{lead.note}</div>
+                              <div className="mt-4">
                                 {statusCols[statusCols.indexOf(lead.status) + 1] ? (
                                   <Button
                                     variant="outline"
@@ -418,7 +540,7 @@ export default function GeoSalesAutomationMVP() {
                                     Move to {statusCols[statusCols.indexOf(lead.status) + 1]}
                                   </Button>
                                 ) : (
-                                  <Badge variant="secondary">Completed</Badge>
+                                  <Badge variant="secondary" className="rounded-full">Completed</Badge>
                                 )}
                               </div>
                             </div>
@@ -431,79 +553,58 @@ export default function GeoSalesAutomationMVP() {
               </TabsContent>
 
               <TabsContent value="dashboard" className="mt-6">
-                <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-5">
-                  {[
-                    { label: 'Generated Posts', value: posts.length, icon: Sparkles },
-                    { label: 'Avg Channel Fit', value: averageChannelFit, icon: Target },
-                    { label: 'Selected Channels', value: selected.length, icon: Globe },
-                    { label: 'Total Leads', value: leads.length, icon: Search },
-                    { label: 'Pipeline Progress', value: `${pipelineProgress}%`, icon: BarChart3 },
-                    { label: 'Operation Logs', value: operationLogs.length, icon: ListChecks },
-                  ].map((item) => (
-                    <Card key={item.label} className="rounded-[1.5rem] border-0 shadow-sm">
-                      <CardContent className="flex items-center justify-between p-6">
-                        <div>
-                          <div className="text-sm text-neutral-500">{item.label}</div>
-                          <div className="mt-2 text-3xl font-semibold">{item.value}</div>
-                        </div>
-                        <item.icon className="h-8 w-8" />
-                      </CardContent>
-                    </Card>
-                  ))}
+                <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+                  <MetricCard label="Generated Posts" value={posts.length} icon={FileText} />
+                  <MetricCard label="Avg Channel Fit" value={averageChannelFit} icon={Target} />
+                  <MetricCard label="Selected Channels" value={selected.length} icon={Globe} />
+                  <MetricCard label="Distribution Logs" value={published.length} icon={BarChart3} />
+                  <MetricCard label="Operation Logs" value={operationLogs.length} icon={ListChecks} />
                 </div>
 
-                <div className="mt-6 grid gap-6 xl:grid-cols-[1.2fr_0.8fr]">
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                <div className="mt-6 grid gap-6 xl:grid-cols-2">
+                  <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                     <CardHeader>
-                      <CardTitle>Cold-start Workflow</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <Workflow className="h-5 w-5" /> MVP Capability Checklist
+                      </CardTitle>
                     </CardHeader>
-                    <CardContent>
-                      <div className="grid gap-3 md:grid-cols-5">
-                        {['Input Product', 'Generate Posts', 'Multi-channel Distribution', 'Collect Leads', 'Move to Conversion'].map((step, idx) => (
-                          <div key={step} className="rounded-2xl bg-neutral-50 p-4 text-center">
-                            <div className="mb-2 text-sm text-neutral-500">STEP {idx + 1}</div>
-                            <div className="font-medium">{step}</div>
-                          </div>
-                        ))}
-                      </div>
+                    <CardContent className="space-y-3 text-sm leading-6 text-neutral-700">
+                      {[
+                        'GEO-oriented content generation from product inputs',
+                        'Platform-specific adaptation with channel fit metadata',
+                        'Multi-source distribution simulation',
+                        'Local workflow persistence with localStorage',
+                        'CSV export for Excel-compatible structured storage',
+                        'Operation logs for workflow traceability',
+                      ].map((item) => (
+                        <div key={item} className="flex items-start gap-3 rounded-2xl bg-neutral-50 p-4">
+                          <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-500" />
+                          <span>{item}</span>
+                        </div>
+                      ))}
                     </CardContent>
                   </Card>
 
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                  <Card className="rounded-[1.5rem] border border-neutral-200 bg-white shadow-sm">
                     <CardHeader>
-                      <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5" /> Operation Logs</CardTitle>
+                      <CardTitle className="flex items-center gap-2">
+                        <ListChecks className="h-5 w-5" /> Operation Logs
+                      </CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm">
-                      {operationLogs.slice(0, 6).map((log) => (
+                      {operationLogs.slice(0, 7).map((log) => (
                         <div key={log.id} className="rounded-2xl bg-neutral-50 p-4">
-                          <div className="font-medium">{log.action}</div>
+                          <div className="font-medium text-neutral-950">{log.action}</div>
                           <div className="mt-1 text-neutral-600">{log.detail}</div>
                           <div className="mt-2 text-xs text-neutral-400">{log.time}</div>
                         </div>
                       ))}
-                      <Button variant="outline" className="w-full rounded-2xl" onClick={resetLocalWorkflow}>
-                        Reset Local Workflow
-                      </Button>
-                    </CardContent>
-                  </Card>
-
-                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
-                    <CardHeader>
-                      <CardTitle>MVP Capability Checklist</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-3 text-sm leading-6 text-neutral-700">
-                      <div className="rounded-2xl bg-neutral-50 p-4">✅ GEO-oriented content generation from product inputs</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Platform-specific adaptation with channel fit metadata</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Multi-source distribution simulation</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Local workflow persistence with localStorage</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">✅ CSV export for Excel-compatible structured storage</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Operation logs for workflow traceability</div>
                     </CardContent>
                   </Card>
                 </div>
               </TabsContent>
             </Tabs>
-          </div>
+          </main>
         </div>
       </div>
     </div>
