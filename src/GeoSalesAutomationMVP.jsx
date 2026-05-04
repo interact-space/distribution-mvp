@@ -67,7 +67,7 @@ function FeatureBubble({ children }) {
       initial={{ opacity: 0, x: 20 }}
       animate={{ opacity: 1, x: 0 }}
       transition={{ duration: 0.35 }}
-      className="relative w-full rounded-2xl bg-lime-400 px-6 py-5 text-2xl font-semibold tracking-tight text-black shadow-sm"
+      className="relative w-full rounded-2xl bg-lime-400 px-5 py-4 text-xl font-semibold tracking-tight text-black shadow-sm"
     >
       <div className="pr-6">{children}</div>
       <div className="absolute right-[-16px] top-1/2 h-0 w-0 -translate-y-1/2 border-y-[14px] border-l-[18px] border-y-transparent border-l-lime-400" />
@@ -189,7 +189,7 @@ export default function GeoSalesAutomationMVP() {
   return (
     <div className="min-h-screen bg-neutral-200 text-neutral-900">
       <div className="mx-auto max-w-7xl p-6 md:p-10">
-        <div className="grid gap-6 lg:grid-cols-[420px_1fr]">
+        <div className="grid gap-6 xl:grid-cols-[340px_1fr]">
           <div className="space-y-5">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -368,7 +368,7 @@ export default function GeoSalesAutomationMVP() {
               </TabsContent>
 
               <TabsContent value="crm" className="mt-6">
-                <div className="grid gap-6 xl:grid-cols-[320px_1fr]">
+                <div className="grid gap-6">
                   <Card className="rounded-[1.5rem] border-0 shadow-sm">
                     <CardHeader>
                       <CardTitle className="flex items-center gap-2 text-lg"><Workflow className="h-5 w-5" /> Pipeline Overview</CardTitle>
@@ -395,7 +395,7 @@ export default function GeoSalesAutomationMVP() {
                     </CardContent>
                   </Card>
 
-                  <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                  <div className="grid gap-4 md:grid-cols-2 2xl:grid-cols-4">
                     {statusCols.map((status) => (
                       <Card key={status} className="rounded-[1.5rem] border-0 shadow-sm">
                         <CardHeader>
@@ -408,11 +408,18 @@ export default function GeoSalesAutomationMVP() {
                               <div className="mt-1 text-xs text-neutral-500">Source: {lead.source}</div>
                               <div className="mt-2 text-sm text-neutral-700">{lead.note}</div>
                               <div className="mt-3 flex flex-wrap gap-2">
-                                {statusCols.filter((s) => s !== lead.status).map((next) => (
-                                  <Button key={next} variant="outline" size="sm" className="rounded-xl" onClick={() => moveLead(lead.id, next)}>
-                                    Move to {next}
+                                {statusCols[statusCols.indexOf(lead.status) + 1] ? (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    className="rounded-xl"
+                                    onClick={() => moveLead(lead.id, statusCols[statusCols.indexOf(lead.status) + 1])}
+                                  >
+                                    Move to {statusCols[statusCols.indexOf(lead.status) + 1]}
                                   </Button>
-                                ))}
+                                ) : (
+                                  <Badge variant="secondary">Completed</Badge>
+                                )}
                               </div>
                             </div>
                           ))}
