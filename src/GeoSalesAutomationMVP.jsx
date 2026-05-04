@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
 import { Sparkles, Send, Workflow, Target, MessageSquare, Globe, Search, BarChart3, Download, ListChecks } from 'lucide-react';\nimport { loadState, saveState } from '@/services/storageService';\nimport { downloadCsv } from '@/services/csvExportService';\nimport { createOperationLog } from '@/services/operationLogService';
+import { enrichPostWithGeoMetadata, getAverageChannelFit } from '@/services/contentAdaptationService';
 
 const CHANNELS = [
   { id: 'xiaohongshu', name: 'Xiaohongshu' },
@@ -85,9 +86,12 @@ export default function GeoSalesAutomationMVP() {
   ]));
 
   const posts = useMemo(
-    () => makePosts({ productName, audience, keywords, tone, description }),
+    () => makePosts({ productName, audience, keywords, tone, description })
+      .map((post) => enrichPostWithGeoMetadata(post, keywords)),
     [productName, audience, keywords, tone, description]
   );
+
+  const averageChannelFit = useMemo(() => getAverageChannelFit(posts), [posts]);
 
   useEffect(() => {
     saveState('selectedChannels', selected);
@@ -141,6 +145,10 @@ export default function GeoSalesAutomationMVP() {
       id: index + 1,
       channel: post.channel,
       title: post.title,
+      format: post.format,
+      distributionIntent: post.distributionIntent,
+      channelFitScore: post.channelFitScore,
+      geoKeywords: post.geoKeywords.join(' | '),
       body: post.body,
     })));
     addOperationLog('Exported CSV', 'Generated posts exported for Excel-compatible storage');
@@ -274,6 +282,25 @@ export default function GeoSalesAutomationMVP() {
                             <div className="font-semibold">{post.title}</div>
                             <Badge variant="secondary">{post.channel}</Badge>
                           </div>
+                          <div className="mb-3 grid gap-2 md:grid-cols-3">
+                            <div className="rounded-xl bg-white p-3 text-xs">
+                              <div className="text-neutral-400">Channel Fit</div>
+                              <div className="mt-1 text-lg font-semibold">{post.channelFitScore}</div>
+                            </div>
+                            <div className="rounded-xl bg-white p-3 text-xs">
+                              <div className="text-neutral-400">Format</div>
+                              <div className="mt-1 font-medium text-neutral-700">{post.format}</div>
+                            </div>
+                            <div className="rounded-xl bg-white p-3 text-xs">
+                              <div className="text-neutral-400">Distribution Intent</div>
+                              <div className="mt-1 font-medium text-neutral-700">{post.distributionIntent}</div>
+                            </div>
+                          </div>
+                          <div className="mb-3 flex flex-wrap gap-2">
+                            {post.geoKeywords.map((keyword) => (
+                              <Badge key={keyword} variant="outline">{keyword}</Badge>
+                            ))}
+                          </div>
                           <p className="whitespace-pre-line text-sm leading-6 text-neutral-700">{post.body}</p>
                         </motion.div>
                       ))}
@@ -397,6 +424,7 @@ export default function GeoSalesAutomationMVP() {
                 <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-5">
                   {[
                     { label: 'Generated Posts', value: posts.length, icon: Sparkles },
+                    { label: 'Avg Channel Fit', value: averageChannelFit, icon: Target },
                     { label: 'Selected Channels', value: selected.length, icon: Globe },
                     { label: 'Total Leads', value: leads.length, icon: Search },
                     { label: 'Pipeline Progress', value: `${pipelineProgress}%`, icon: BarChart3 },
