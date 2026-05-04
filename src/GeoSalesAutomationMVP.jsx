@@ -9,7 +9,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Send, Workflow, Target, MessageSquare, Globe, Search, BarChart3, Download, ListChecks } from 'lucide-react';\nimport { loadState, saveState } from '@/services/storageService';\nimport { downloadCsv } from '@/services/csvExportService';\nimport { createOperationLog } from '@/services/operationLogService';
+import { Sparkles, Send, Workflow, Target, MessageSquare, Globe, Search, BarChart3, Download, ListChecks } from 'lucide-react';
+import { loadState, saveState } from '@/services/storageService';
+import { downloadCsv } from '@/services/csvExportService';
+import { createOperationLog } from '@/services/operationLogService';
 import { enrichPostWithGeoMetadata, getAverageChannelFit } from '@/services/contentAdaptationService';
 
 const CHANNELS = [
