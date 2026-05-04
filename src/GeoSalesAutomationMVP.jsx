@@ -479,13 +479,15 @@ export default function GeoSalesAutomationMVP() {
 
                   <Card className="rounded-[1.5rem] border-0 shadow-sm">
                     <CardHeader>
-                      <CardTitle>Recommended MVP Next Steps</CardTitle>
+                      <CardTitle>MVP Capability Checklist</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-3 text-sm leading-6 text-neutral-700">
-                      <div className="rounded-2xl bg-neutral-50 p-4">Connect the OpenAI / Claude API to replace the current frontend mock generation.</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">Connect a database to store posts, channels, leads, and sales statuses.</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">Connect real platform publishing APIs or browser automation.</div>
-                      <div className="rounded-2xl bg-neutral-50 p-4">Add login, team collaboration, customer views, and report export.</div>
+                      <div className="rounded-2xl bg-neutral-50 p-4">✅ GEO-oriented content generation from product inputs</div>
+                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Platform-specific adaptation with channel fit metadata</div>
+                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Multi-source distribution simulation</div>
+                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Local workflow persistence with localStorage</div>
+                      <div className="rounded-2xl bg-neutral-50 p-4">✅ CSV export for Excel-compatible structured storage</div>
+                      <div className="rounded-2xl bg-neutral-50 p-4">✅ Operation logs for workflow traceability</div>
                     </CardContent>
                   </Card>
                 </div>
