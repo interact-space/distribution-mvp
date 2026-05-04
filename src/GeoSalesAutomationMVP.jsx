@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Progress } from '@/components/ui/progress';
-import { Sparkles, Send, Workflow, Target, MessageSquare, Globe, Search, BarChart3 } from 'lucide-react';
+import { Sparkles, Send, Workflow, Target, MessageSquare, Globe, Search, BarChart3, Download, ListChecks } from 'lucide-react';\nimport { loadState, saveState } from '@/services/storageService';\nimport { downloadCsv } from '@/services/csvExportService';\nimport { createOperationLog } from '@/services/operationLogService';
 
 const CHANNELS = [
   { id: 'xiaohongshu', name: 'Xiaohongshu' },
@@ -77,14 +77,37 @@ export default function GeoSalesAutomationMVP() {
   const [keywords, setKeywords] = useState('GEO, automated posting, cold start, sales automation');
   const [tone, setTone] = useState('Professional');
   const [description, setDescription] = useState('Help teams automatically generate posts, distribute them across platforms, and move leads into the sales pipeline.');
-  const [selected, setSelected] = useState(['xiaohongshu', 'zhihu', 'linkedin']);
-  const [published, setPublished] = useState([]);
-  const [leads, setLeads] = useState(initialLeads);
+  const [selected, setSelected] = useState(() => loadState('selectedChannels', ['xiaohongshu', 'zhihu', 'linkedin']));
+  const [published, setPublished] = useState(() => loadState('distributionLogs', []));
+  const [leads, setLeads] = useState(() => loadState('leads', initialLeads));
+  const [operationLogs, setOperationLogs] = useState(() => loadState('operationLogs', [
+    createOperationLog('System initialized', 'Loaded default MVP workflow data'),
+  ]));
 
   const posts = useMemo(
     () => makePosts({ productName, audience, keywords, tone, description }),
     [productName, audience, keywords, tone, description]
   );
+
+  useEffect(() => {
+    saveState('selectedChannels', selected);
+  }, [selected]);
+
+  useEffect(() => {
+    saveState('distributionLogs', published);
+  }, [published]);
+
+  useEffect(() => {
+    saveState('leads', leads);
+  }, [leads]);
+
+  useEffect(() => {
+    saveState('operationLogs', operationLogs);
+  }, [operationLogs]);
+
+  const addOperationLog = (action, detail) => {
+    setOperationLogs((prev) => [createOperationLog(action, detail), ...prev].slice(0, 30));
+  };
 
   const pipelineProgress = Math.round((leads.filter((l) => l.status === 'Converted').length / leads.length) * 100);
 
@@ -101,11 +124,55 @@ export default function GeoSalesAutomationMVP() {
       time: timestamp,
       status: 'Distributed',
     }));
-    setPublished(result);
+    setPublished((prev) => [...result, ...prev]);
+    addOperationLog('Distributed content', `Published ${result.length} records across selected channels`);
   };
 
   const moveLead = (id, next) => {
+    const targetLead = leads.find((lead) => lead.id === id);
     setLeads((prev) => prev.map((lead) => (lead.id === id ? { ...lead, status: next } : lead)));
+    if (targetLead) {
+      addOperationLog('Updated lead status', `${targetLead.name}: ${targetLead.status} → ${next}`);
+    }
+  };
+
+  const exportPosts = () => {
+    downloadCsv('generated-posts.csv', posts.map((post, index) => ({
+      id: index + 1,
+      channel: post.channel,
+      title: post.title,
+      body: post.body,
+    })));
+    addOperationLog('Exported CSV', 'Generated posts exported for Excel-compatible storage');
+  };
+
+  const exportDistributionLogs = () => {
+    downloadCsv('distribution-logs.csv', published.map((item) => ({
+      id: item.id,
+      channel: item.channel,
+      title: item.title,
+      status: item.status,
+      time: item.time,
+    })));
+    addOperationLog('Exported CSV', 'Distribution logs exported for Excel-compatible storage');
+  };
+
+  const exportLeads = () => {
+    downloadCsv('leads.csv', leads.map((lead) => ({
+      id: lead.id,
+      name: lead.name,
+      source: lead.source,
+      status: lead.status,
+      note: lead.note,
+    })));
+    addOperationLog('Exported CSV', 'Lead pipeline exported for Excel-compatible storage');
+  };
+
+  const resetLocalWorkflow = () => {
+    setSelected(['xiaohongshu', 'zhihu', 'linkedin']);
+    setPublished([]);
+    setLeads(initialLeads);
+    setOperationLogs([createOperationLog('Workflow reset', 'Local MVP workflow state was reset to defaults')]);
   };
 
   return (
@@ -187,7 +254,12 @@ export default function GeoSalesAutomationMVP() {
 
                   <Card className="rounded-[1.5rem] border-0 shadow-sm">
                     <CardHeader>
+                      <div className="flex items-center justify-between gap-3">
                       <CardTitle className="flex items-center gap-2 text-lg"><MessageSquare className="h-5 w-5" /> Auto-generated Posts</CardTitle>
+                      <Button variant="outline" size="sm" className="rounded-xl" onClick={exportPosts}>
+                        <Download className="mr-2 h-4 w-4" /> Export CSV
+                      </Button>
+                    </div>
                     </CardHeader>
                     <CardContent className="space-y-4">
                       {posts.map((post, idx) => (
@@ -235,7 +307,12 @@ export default function GeoSalesAutomationMVP() {
 
                   <Card className="rounded-[1.5rem] border-0 shadow-sm">
                     <CardHeader>
+                      <div className="flex items-center justify-between gap-3">
                       <CardTitle className="flex items-center gap-2 text-lg"><Globe className="h-5 w-5" /> Distribution Results</CardTitle>
+                      <Button variant="outline" size="sm" className="rounded-xl" onClick={exportDistributionLogs} disabled={published.length === 0}>
+                        <Download className="mr-2 h-4 w-4" /> Export CSV
+                      </Button>
+                    </div>
                     </CardHeader>
                     <CardContent>
                       {published.length === 0 ? (
@@ -267,6 +344,9 @@ export default function GeoSalesAutomationMVP() {
                       <CardTitle className="flex items-center gap-2 text-lg"><Workflow className="h-5 w-5" /> Pipeline Overview</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-5">
+                      <Button variant="outline" className="w-full rounded-2xl" onClick={exportLeads}>
+                        <Download className="mr-2 h-4 w-4" /> Export Leads CSV
+                      </Button>
                       <div className="rounded-2xl bg-neutral-50 p-4">
                         <div className="mb-2 text-sm text-neutral-500">Conversion Progress</div>
                         <Progress value={pipelineProgress} className="mb-2" />
@@ -314,12 +394,13 @@ export default function GeoSalesAutomationMVP() {
               </TabsContent>
 
               <TabsContent value="dashboard" className="mt-6">
-                <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-4">
+                <div className="grid gap-6 md:grid-cols-2 2xl:grid-cols-5">
                   {[
                     { label: 'Generated Posts', value: posts.length, icon: Sparkles },
                     { label: 'Selected Channels', value: selected.length, icon: Globe },
                     { label: 'Total Leads', value: leads.length, icon: Search },
                     { label: 'Pipeline Progress', value: `${pipelineProgress}%`, icon: BarChart3 },
+                    { label: 'Operation Logs', value: operationLogs.length, icon: ListChecks },
                   ].map((item) => (
                     <Card key={item.label} className="rounded-[1.5rem] border-0 shadow-sm">
                       <CardContent className="flex items-center justify-between p-6">
@@ -347,6 +428,24 @@ export default function GeoSalesAutomationMVP() {
                           </div>
                         ))}
                       </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card className="rounded-[1.5rem] border-0 shadow-sm">
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2"><ListChecks className="h-5 w-5" /> Operation Logs</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-3 text-sm">
+                      {operationLogs.slice(0, 6).map((log) => (
+                        <div key={log.id} className="rounded-2xl bg-neutral-50 p-4">
+                          <div className="font-medium">{log.action}</div>
+                          <div className="mt-1 text-neutral-600">{log.detail}</div>
+                          <div className="mt-2 text-xs text-neutral-400">{log.time}</div>
+                        </div>
+                      ))}
+                      <Button variant="outline" className="w-full rounded-2xl" onClick={resetLocalWorkflow}>
+                        Reset Local Workflow
+                      </Button>
                     </CardContent>
                   </Card>
 
